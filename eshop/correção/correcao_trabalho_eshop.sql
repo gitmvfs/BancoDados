@@ -1,236 +1,196 @@
--- DROP DATABASE eshop_turma_b;
+drop table address;
+drop table bank_card;
+drop table brand;
+drop table buyer;
+drop table comments;
+drop table contain;
+drop table credit_card;
+drop table debit_card;
+drop table oorder;
+drop table order_item;
+drop table payment;
+drop table deliver_to;
+drop table manage;
+drop table After_Sales_Service_At;
+drop table product;
+drop table save_to_shopping_cart;
+drop table seller;
+drop table servicepoint;
+drop table store;
+drop table users;
 
 
-USE eshop_turma_b;
+drop database eshop_correcao;
 
-DROP TABLE delivery_to;
-DROP TABLE contain;
-DROP TABLE payment;
-DROP TABLE manage;
-DROP TABLE save_to_shopping_cart;
-DROP TABLE after_sales_service_at;
+create database eshop_correcao;
+use eshop_correcao;
 
 
-DROP TABLE address;
-DROP TABLE orders;
-DROP TABLE orderItem;
-DROP TABLE creditCard;
-DROP TABLE debitCard;
-DROP TABLE bankCard;
-DROP TABLE seller;
-DROP TABLE comments;
-DROP TABLE buyer;
-DROP TABLE users;
-DROP TABLE product;
-DROP TABLE store;
-DROP TABLE servicePoint;
-DROP TABLE brand;
-
--- criação do banco de dados
-DROP DATABASE eshop_turma_b;
-
-CREATE DATABASE IF NOT EXISTS eshop_turma_b;
-
-USE eshop_turma_b;
-
--- criação de entidades
-
-CREATE TABLE  IF NOT EXISTS users(
-	userid 	int auto_increment,
-	name	varchar(40) NOT NULL,				
-	phoneNumber varchar(12), 
-	PRIMARY KEY (userid)
+create table users(
+userid int  NOT NULL PRIMARY KEY AUTO_INCREMENT, 
+nome varchar(20), 
+phoneNumber char(12)
 );
 
-CREATE TABLE buyer(
-	userid int not null auto_increment,
-    
-    primary key (userid),
-    foreign key (userid) references users(userid)
+create table brand(
+brandname varchar(50) NOT NULL PRIMARY KEY
 );
 
-CREATE TABLE seller(
-	userid int not null auto_increment,
-    
-    primary key (userid),
-    foreign key (userid) references users(userid)
+create table buyer(
+fk_userid int  NOT NULL PRIMARY KEY  AUTO_INCREMENT,
+foreign key (fk_userid) references users (userid)
 );
 
-CREATE TABLE bankCard(
-	cardNumber char(19) NOT NULL,
-    expirydate date NOT NULL,
-    bank varchar(25) not null,
-	PRIMARY KEY (cardNumber)
+create table seller(
+fk_userid int  NOT NULL PRIMARY KEY  AUTO_INCREMENT,
+foreign key (fk_userid) references users (userid)
 );
 
-CREATE TABLE creditCard(
-	cardNumber CHAR(19) NOT NULL,
-    userid INT NOT NULL,
-    organization VARCHAR(50),
-    
-    PRIMARY KEY (cardNumber),
-    FOREIGN KEY (cardNumber) references bankCard(cardNumber),
-    FOREIGN KEY(userid) references users(userid)
-    );
-
-CREATE TABLE debitCard(
-	cardNumber CHAR(19) NOT NULL,
-    userid INT NOT NULL,
- 
-    PRIMARY KEY (cardNumber),
-    FOREIGN KEY (cardNumber) references bankCard(cardNumber),
-    FOREIGN KEY(userid) references users(userid)
-    );
-    
-CREATE TABLE store(
-	sid			int auto_increment,
-    name 		VARCHAR(50) NOT NULL,
-    province	VARCHAR(35),
-	city 		varchar(40),
-    street		VARCHAR(40),
-    customerGrade INT,
-    startTime DATE,
-    
-    PRIMARY KEY(sid)
+create table bank_card(
+cardnumber CHAR(16) NOT NULL PRIMARY KEY,
+expirydate date NOT NULL,
+bank varchar(20)
 );
 
-CREATE TABLE brand(
-	brandName varchar(50) primary key
+create table credit_card(
+fk_cardnumber CHAR(16) NOT NULL PRIMARY KEY, 
+fk_userid int  NOT NULL,
+organizationn varchar(30),
+foreign key (fk_cardnumber) references bank_card (cardnumber),
+foreign key (fk_userid) references users (userid)
 );
 
-CREATE TABLE product(
-	pid INT NOT NULL,
-    sid INT NOT NULL,
-    name VARCHAR(120) NOT NULL,
-	brandName VARCHAR(50) NOT NULL,
-    type 	VARCHAR(50),
-    amount	INT default null,
-	price 	decimal(8,2) NOT NULL,
-    color 	VARCHAR(20),
-    modelNumber VARCHAR(50),
-    
-    PRIMARY KEY(pid),
-    FOREIGN KEY (sid) references store(sid),
-    FOREIGN KEY (brandName) references brand(brandName)
-    
+create table debit_card(
+fk_cardnumber CHAR(16) NOT NULL PRIMARY KEY, 
+fk_userid int NOT NULL,
+foreign key (fk_cardnumber) references bank_card (cardnumber),
+foreign key (fk_userid) references users (userid)
 );
 
-CREATE TABLE orderItem(
-	itemid 	int not null auto_increment,
-    pid 	int not null,
-    price decimal(8,2),
-    creationTime time not null,
-    
-    primary key (itemid),
-    foreign key (pid) references product(pid)
+create table store(
+sid int NOT NULL PRIMARY KEY, 
+nome varchar(30) NOT NULL, 
+province varchar(20) NOT NULL,
+city varchar(40) NOT NULL,
+streetaddr varchar(40),
+customergrade int, 
+starttime date
 );
 
-CREATE TABLE orders (
-	orderNumber int NOT NULL,
-    paymentState ENUM('Paid','Unpaid'),
-    creationTime TIME NOT NULL,
-    totalAmount decimal(10,2),
-	
-    PRIMARY KEY (orderNumber)
+create table product (
+pid int NOT NULL PRIMARY KEY, 
+fk_sid int NOT NULL, 
+fk_brand varchar(50) NOT NULL,
+nome varchar(120) NOT NULL,
+typee varchar(25), 
+modelnumber varchar(50),
+color varchar(15), 
+amount int DEFAULT NULL,
+price decimal(6,2),
+foreign key (fk_sid) references store (sid),
+foreign key (fk_brand) references brand (brandname)
 );
 
-CREATE TABLE address(
-	addrid int not null,
-    userid int not null,
-    name	varchar(50),
-    concactPhoneNumber varchar(20),
-    city varchar(100),
-    province 	varchar(100),
-    street	varchar(100),
-    postCode varchar(12),
-    
-    PRIMARY KEY (addrid),
-	FOREIGN KEY (userid) references users(userid)
+create table order_item(
+itemid int NOT NULL AUTO_INCREMENT PRIMARY KEY, 
+fk_pid int NOT NULL, 
+price decimal(6,2), 
+creationtime date NOT NULL,
+foreign key (fk_pid) references product (pid)
+);
+
+create table Orders(
+ordernumber int NOT NULL PRIMARY KEY, 
+paymentstatus enum('paid', 'unpaid'),
+creationtime date NOT NULL, 
+totalamount decimal(10,2)
+);
+
+create table address(
+addrid int NOT NULL PRIMARY KEY, 
+fk_userid int NOT NULL, 
+nome varchar(50), 
+contactphonenumber varchar(20),
+city varchar(50), 
+province varchar(100), 
+streetaddr varchar(100),
+postalcode char(12), 
+foreign key (fk_userid) references users (userid)
+);
+
+create table comments(
+creationtime date NOT NULL,
+fk_userid int NOT NULL,
+fk_pid int NOT NULL,
+grade float,
+content varchar(500),
+primary key(creationtime, fk_userid, fk_pid),
+foreign key (fk_userid) references users (userid),
+foreign key (fk_pid) references product (pid)
+);
+
+create table servicePoint(
+spid int NOT NULL PRIMARY KEY,
+streetaddr varchar(100),
+city varchar(40),
+province varchar(50),
+starttime varchar(20),
+endtime varchar(20)
+);
+
+create table Save_to_Shopping_Cart(
+fk_userid int NOT NULL,
+fk_pid int NOT NULL,
+addtime date NOT NULL,
+quantity int,
+primary key(fk_userid, fk_pid),
+foreign key (fk_userid) references buyer (fk_userid),
+foreign key (fk_pid) references product (pid)
+);
+
+create table Contain(
+fk_ordernumber int NOT NULL,
+fk_itemid int NOT NULL,
+quantity int,
+primary key(fk_orderNumber, fk_itemid),
+foreign key (fk_ordernumber) references Orders (ordernumber),
+foreign key (fk_itemid) references order_item (itemid)
+);
+
+create table Payment(
+fk_ordernumber int NOT NULL,
+fk_cardnumber CHAR(16) NOT NULL,
+payTime date,
+primary key(fk_ordernumber, fk_cardnumber),
+foreign key (fk_ordernumber) references Orders (ordernumber),
+foreign key (fk_cardnumber) references bank_card (cardnumber)
+);
+
+create table deliver_to(
+fk_addrid int NOT NULL,
+fk_ordernumber int NOT NULL,
+timedelivered date,
+primary key(fk_addrid, fk_ordernumber),
+foreign key (fk_ordernumber) references Orders (ordernumber),
+foreign key (fk_addrid) references address (addrid)
+);
+
+create table Manage(
+fk_userid int  NOT NULL,
+fk_sid int NOT NULL,
+setuptime date,
+primary key(fk_userid, fk_sid),
+foreign key (fk_userid) references seller (fk_userid),
+foreign key (fk_sid) references store (sid)
+);
+
+create table After_Sales_Service_At( 
+fk_brandName varchar(20) NOT NULL,
+fk_spid int NOT NULL,
+primary key(fk_brandName, fk_spid),
+foreign key (fk_brandname) references brand (brandname),
+foreign key (fk_spid) references servicePoint (spid)
 );
 
 
-CREATE TABLE comments(
-    creationTime date not null ,
-    userid int not null,
-    pid int not null,
-    grade float,
-    content varchar(500) not null,
-    
-    primary key(creationTime, userid, pid),
-    foreign key (userid) references users(userid),
-	foreign key (pid) references product(pid)
-);
 
-CREATE TABLE servicePoint(
-	spid INT NOT NULL,
-    street 	varchar(100) NOT NULL,
-    city varchar(50),
-    provencieis varchar(20),
-    startTime  varchar(20),
-    endTime varchar(20),
-    
-    PRIMARY KEY(spid)
-);
-
-CREATE TABLE saveToShoppingCart(
-	userid int not null,
-    pid int not null,
-    addTime date not null,
-    quantity int not null,
-    
-    PRIMARY KEY( userid,pid),
-    foreign key(userid) references users(userid),
-    foreign key(pid) references product(pid)
-);
-
-CREATE TABLE cointain(
-	orderNumber int not null,
-    itemid int not null,
-    quantity int,
-    
-    PRIMARY KEY (orderNumber,itemid),
-    FOREIGN KEY (itemid) references orderItem(itemid),
-    FOREIGN KEY (orderNumber) references orders(orderNumber)
-);
-
-
-CREATE TABLE payment(
-	orderNumber INT NOT NULL,
-    cardNumber CHAR(16) NOT NULL,
-    payTime DATE NOT NULL,
-    
-    primary key (orderNumber, cardNumber),
-    foreign key (orderNumber) references orders(orderNumber),
-    foreign key (cardNumber) references bankcard(cardNumber)
-);
-
-CREATE TABLE deliverTo(
-	addrid INT NOT NULL,
-    orderNumber INT NOT NULL,
-    timeDelivered date,
-    
-    PRIMARY KEY (addrid, orderNumber),
-    foreign key (addrid) references address(addrid),
-    foreign key (orderNumber) references orders(orderNumber)
-);
-
-CREATE TABLE manage (
-    userid             INT NOT NULL,
-    sid                 INT NOT NULL,
-    setUpTime             DATE,
-    
-    PRIMARY KEY(userid,sid),
-    FOREIGN KEY(userid) REFERENCES seller(userid),
-    FOREIGN KEY(sid) REFERENCES store (sid)
-);
-
- 
-
-CREATE TABLE After_Sales_Service_At(
-    brandName         VARCHAR(20) NOT NULL,
-    spid             INT NOT NULL,
-    
-    PRIMARY KEY(brandName, spid),
-    FOREIGN KEY(brandName) REFERENCES brand (brandName),
-    FOREIGN KEY(spid) REFERENCES servicePoint(spid)
-);
